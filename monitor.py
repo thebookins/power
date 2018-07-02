@@ -61,8 +61,8 @@ def intervalToPower(interval):
 	return 3600 / interval
 
 # This function sends the instantaneous power to EmonCMS (called every 10 seconds below)
-def SendPulses(
-	global powe
+def SendPulses():
+	global power
 
 	# Calculate ideal solar output for a 3kW system in Sydney (+10 hours), for simulation purposes in EmonCMS
 	# remove if not needed
@@ -90,10 +90,9 @@ sched.add_job(SendPulses, 'interval', seconds=10)
 sched.start()
 
 lasttime = time.time()*1000
-for line in runProcess(["/usr/local/bin/gpio-irq", "7"]): # GPIO pin 7 on the Pi
+for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
     timenow = time.time()*1000
     if(timenow >= lasttime + 360): # ignore multiple pulses within a 360 ms window (limits power reported to 10 kW)
       period_in_seconds = (timenow - lasttime) / 1000
       power = intervalToPower(period_in_seconds)
       lasttime = timenow
-
