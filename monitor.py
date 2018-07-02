@@ -77,10 +77,11 @@ def SendPulses():
     if(provisionalPower < power):
         power = provisionalPower
 
-    # print ("Power: %iW) % power # Uncomment for debugging.
-    url = ("/emoncms/input/post?node=1&json={power:%0.1f,solar:%0.1f}&apikey=<insert API key here>") % (power, solar) # You'll need to put in your API key here from EmonCMS
-    connection = httplib.HTTPConnection("localhost")
-    connection.request("GET", url)
+    path = ('/input/post?node=emontx&fulljson={"power":%0.1f,"solar":%0.1f}&apikey=<insert API key here>') % (power, solar) # You'll need to put in your API key here from EmonCMS
+    connection = httplib.HTTPConnection("emoncms.org")
+    connection.request("GET", path)
+    res = connection.getresponse()
+    # TODO: deal with a bad response
 
 # Start the scheduler
 sched = BackgroundScheduler()
