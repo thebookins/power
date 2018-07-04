@@ -92,6 +92,6 @@ lasttime = time.time()*1000
 for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
     timenow = time.time()*1000
     if(timenow >= lasttime + 360): # ignore multiple pulses within a 360 ms window (limits power reported to 10 kW)
-        period_in_seconds = (timenow - lasttime) / 1000
+        period_in_seconds = (timenow - lasttime) / 1000 # TODO: check if this works on Python 2.7 (don't want integer division)
         power = intervalToPower(period_in_seconds)
         lasttime = timenow
