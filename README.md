@@ -55,6 +55,11 @@ sudo update-rc.d power-monitor defaults
 
 **Note:** Be sure to check the power-monitor file to make sure that the path to the Python application, monitor.py, matches with the path on your system. For example, /home/pi/power/power.py
 
+**Update:** The above does not appear to work on Raspbian Wheezy, as `init.d` has been replaced by `systemd`. An alternative is to start the python script in crontab:
+```
+@reboot python /home/pi/power/monitor.py & > /var/log/power.log 2>&1
+```
+
 Due to Python's inability to respond to an interrupt, I've used a very simple C app to listen for an interrupt triggered when the LDR detects a pulse. Monitor.py counts these pulses and each minute, creates a power reading in watts which it sends to EmonCMS' API.
 This file was adapted and simplified from the example isr.c distributed with wiringPi by Gordon Henderson
 This app will need compiling like so:
@@ -74,7 +79,7 @@ sudo /etc/init.d/power-monitor start
 This script is configure only to submit its output to the EmonCMS API.
 You can read how to set up EmonCMS on the Pi here: http://openenergymonitor.org/emon/emoncms/installing-ubuntu-debian-pi
 Once you have set up EmonCMS you will need to get your API key and put it in monitor.py, line 69.
-After that you'll need to tell EmonCMS what to do with the data - I'm not entirely clear on this bit myself yet but if you set it 
+After that you'll need to tell EmonCMS what to do with the data - I'm not entirely clear on this bit myself yet but if you set it
 just to log to feed you can see easily if it's receiving data. Alternatively, check the web server access logs for API requests
 which should happen every minute.
 
@@ -88,4 +93,3 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
