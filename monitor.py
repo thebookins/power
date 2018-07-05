@@ -65,11 +65,11 @@ def SendPulses():
     solar = 3000 * math.cos(theta)
     solar = max(solar,0)
 
-#	print ("Pulses: %i") % pulsecount # Uncomment for debugging.
-	# The next line calculates a power value in watts from the number of pulses, my meter is 1000 pulses per kWh, you'll need to modify this if yours is different.
-	power = pulsecount * 10
-#	print ("Power: %iW") % power # Uncomment for debugging.
-	pulsecount = 0;
+    #	print ("Pulses: %i") % pulsecount # Uncomment for debugging.
+    # The next line calculates a power value in watts from the number of pulses, my meter is 1000 pulses per kWh, you'll need to modify this if yours is different.
+    power = pulsecount * 10
+    #	print ("Power: %iW") % power # Uncomment for debugging.
+    pulsecount = 0;
 
     path = ('/input/post?node=emontx&fulljson={"power":%0.1f,"solar":%0.1f}&apikey=<insert API key here>') % (power, solar) # You'll need to put in your API key here from EmonCMS
     connection = httplib.HTTPConnection("emoncms.org")
