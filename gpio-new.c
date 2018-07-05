@@ -39,7 +39,7 @@
 int busy = 0;
 
 void myInterrupt() {
-    if busy return;
+    if (busy) return;
     busy = 1;
     printf ("Interrupt\n") ;
     fflush (stdout) ;
