@@ -1,5 +1,5 @@
 /*
- * This file was adapted and simplified from the example isr.c 
+ * This file was adapted and simplified from the example isr.c
  * distributed with wiringPi by Gordon Henderson
  *
  * It waits for an interrupt on GPIO 1 and prints 'Interrupt' to stdout
@@ -36,9 +36,15 @@
 #include <limits.h>
 #include <wiringPi.h>
 
+int busy = 0;
+
 void myInterrupt() {
-          printf ("Interrupt\n") ;
-          fflush (stdout) ;
+    if busy return;
+    busy = 1;
+    printf ("Interrupt\n") ;
+    fflush (stdout) ;
+    usleep(360000); // ignore multiple pulses within a 360 ms window (limits power reported to 10 kW)
+    busy = 0;
 }
 
 /*
@@ -52,9 +58,11 @@ int main (void)
   wiringPiSetup () ;
 
   wiringPiISR (1, INT_EDGE_FALLING, &myInterrupt) ;
-  
+
   for (;;) {
-        sleep(UINT_MAX);
+        // sleep(UINT_MAX);
+        sleep(3.6);
+        myInterrupt();
     }
     return 0;
 }
