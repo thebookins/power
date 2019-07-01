@@ -34,7 +34,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <wiringPi.h>
+//#include <wiringPi.h>
 
 int busy = 0;
 
@@ -43,7 +43,7 @@ void myInterrupt() {
     busy = 1;
     printf ("Interrupt\n") ;
     fflush (stdout) ;
-    usleep(360000); // ignore multiple pulses within a 360 ms window (limits power reported to 10 kW)
+    usleep(1000000); // ignore multiple pulses within a 360 ms window (limits power reported to 10 kW)
     busy = 0;
 }
 
@@ -55,13 +55,13 @@ void myInterrupt() {
 
 int main (void)
 {
-  wiringPiSetup () ;
+//  wiringPiSetup () ;
 
-  wiringPiISR (1, INT_EDGE_FALLING, &myInterrupt) ;
+//  wiringPiISR (1, INT_EDGE_FALLING, &myInterrupt) ;
 
   for (;;) {
         // sleep(UINT_MAX);
-        sleep(3.6);
+//        sleep(0.036);
         myInterrupt();
     }
     return 0;
