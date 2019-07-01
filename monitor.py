@@ -59,13 +59,7 @@ def runProcess(exe):
 # This function sends the instantaneous power to EmonCMS (called every 10 seconds below)
 def SendPulses():
     global pulsecount
-    global lastpulsetime
-
-    pulsecount += 1
-
-    timenow = current_milli_time()
-    
-    
+    global power
 
     # Calculate ideal solar output for a 3kW system in Sydney (+10 hours), for simulation purposes in EmonCMS
     # remove if not needed
@@ -79,9 +73,7 @@ def SendPulses():
 
     #	print ("Pulses: %i") % pulsecount # Uncomment for debugging.
     # The next line calculates a power value in watts from the number of pulses, my meter is 1000 pulses per kWh, you'll need to modify this if yours is different.
-    power = (timenow - lastpulsetime) * 36 / 1000
-    lastpulsetime = timenow
-
+ 
     #	print ("Power: %iW") % power # Uncomment for debugging.
     #pulsecount = 0;
 
@@ -90,15 +82,22 @@ def SendPulses():
     connection.request("GET", path)
     res = connection.getresponse()
     # TODO: deal with a bad response
+    
+def Mock():
+    timenow = current_milli_time()
+    pulsecount += 1
+    power = 3600 / (timenow - lastpulsetime)
+    lastpulsetime = timenow    
 
 # Start the scheduler
 sched = BackgroundScheduler()
 sched.add_job(SendPulses, 'interval', seconds=10)
+sched.add_job(Mock, 'interval', seconds=1)
 sched.start()
 
 # lasttime = time.time()*1000
-for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
-    timenow = current_milli_time()
-    pulsecount += 1
-    power = 3600 / (timenow - lastpulsetime)
-    lastpulsetime = timenow
+#for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
+#    timenow = current_milli_time()
+#    pulsecount += 1
+#    power = 3600 / (timenow - lastpulsetime)
+#    lastpulsetime = timenow
