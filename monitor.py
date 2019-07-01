@@ -84,6 +84,10 @@ def SendPulses():
     # TODO: deal with a bad response
     
 def Mock():
+    global pulsecount
+    global power
+    global lastpulsetime
+
     timenow = current_milli_time()
     pulsecount += 1
     power = 3600 * 1000 / (timenow - lastpulsetime)
