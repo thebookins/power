@@ -40,10 +40,10 @@ from datetime import datetime, timedelta
 #logging.basicConfig()
 
 pulsecount = 0
+power = 0
+lastpulsetime = 0
 
 current_milli_time = lambda: int(round(time.time() * 1000))
-
-lastpulsetime = current_milli_time()
 
 # This function monitors the output from gpio-irq C app
 # Code from vartec @ http://stackoverflow.com/questions/4760215/running-shell-command-from-python-and-capturing-the-output
@@ -98,6 +98,7 @@ sched.start()
 
 # lasttime = time.time()*1000
 for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
+    timenow = current_milli_time()
     pulsecount += 1
-
-raw_input("press enter to exit the program")
+    power = 3600 / (timenow - lastpulsetime)
+    lastpulsetime = timenow
