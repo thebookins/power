@@ -41,6 +41,10 @@ from datetime import datetime, timedelta
 
 pulsecount = 0
 
+current_milli_time = lambda: int(round(time.time() * 1000))
+
+lastpulsetime = current_milli_time()
+
 # This function monitors the output from gpio-irq C app
 # Code from vartec @ http://stackoverflow.com/questions/4760215/running-shell-command-from-python-and-capturing-the-output
 def runProcess(exe):
@@ -55,23 +59,33 @@ def runProcess(exe):
 # This function sends the instantaneous power to EmonCMS (called every 10 seconds below)
 def SendPulses():
     global pulsecount
+    global lastpulsetime
+
+    pulsecount += 1
+
+    timenow = current_milli_time()
+    
+    
 
     # Calculate ideal solar output for a 3kW system in Sydney (+10 hours), for simulation purposes in EmonCMS
     # remove if not needed
-    solarnow = datetime.utcnow() + timedelta(hours=10)
-    seconds_since_midday = (solarnow - solarnow.replace(hour=12, minute=0, second=0, microsecond=0)).total_seconds()
-    theta = (math.pi / 2) * seconds_since_midday / (6 * 3600)
+#    solarnow = datetime.utcnow() + timedelta(hours=10)
+#    seconds_since_midday = (solarnow - solarnow.replace(hour=12, minute=0, second=0, microsecond=0)).total_seconds()
+#    theta = (math.pi / 2) * seconds_since_midday / (6 * 3600)
 
-    solar = 3000 * math.cos(theta)
-    solar = max(solar,0)
+#    solar = 3000 * math.cos(theta)
+#    solar = max(solar,0)
+    solar = 0
 
     #	print ("Pulses: %i") % pulsecount # Uncomment for debugging.
     # The next line calculates a power value in watts from the number of pulses, my meter is 1000 pulses per kWh, you'll need to modify this if yours is different.
-    power = pulsecount * 10
-    #	print ("Power: %iW") % power # Uncomment for debugging.
-    pulsecount = 0;
+    power = (timenow - lastpulsetime) * 36 / 1000
+    lastpulsetime = timenow
 
-    path = ('/input/post?node=emontx&fulljson={"power":%0.1f,"solar":%0.1f}&apikey=<insert API key here>') % (power, solar) # You'll need to put in your API key here from EmonCMS
+    #	print ("Power: %iW") % power # Uncomment for debugging.
+    #pulsecount = 0;
+
+    path = ('/input/post?node=emontx&fulljson={"power":%0.1f,"solar":%0.1f,"pulsecount":%d}&apikey=8ba2bf7a74855856417501fab1fefa74') % (power, solar, pulsecount) # You'll need to put in your API key here from EmonCMS
     connection = httplib.HTTPConnection("emoncms.org")
     connection.request("GET", path)
     res = connection.getresponse()
@@ -85,3 +99,5 @@ sched.start()
 # lasttime = time.time()*1000
 for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
     pulsecount += 1
+
+raw_input("press enter to exit the program")
