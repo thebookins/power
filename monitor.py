@@ -86,8 +86,8 @@ def SendPulses():
 def Mock():
     timenow = current_milli_time()
     pulsecount += 1
-    power = 3600 / (timenow - lastpulsetime)
-    lastpulsetime = timenow    
+    power = 3600 * 1000 / (timenow - lastpulsetime)
+    lastpulsetime = timenow
 
 # Start the scheduler
 sched = BackgroundScheduler()
