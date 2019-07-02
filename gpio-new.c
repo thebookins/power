@@ -34,7 +34,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <limits.h>
-//#include <wiringPi.h>
+#include <wiringPi.h>
 
 int busy = 0;
 
