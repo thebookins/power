@@ -84,29 +84,19 @@ def SendPulses():
     timenow = current_milli_time()
     powerEst = min(power, power_from_timeinterval_millis(timenow - lastpulsetime))
 
+    print("power = {:.1f}".format(powerEst))
+
     path = ('/input/post?node=emontx&fulljson={"power":%0.1f,"solar":%0.1f,"pulsecount":%d}&apikey=8ba2bf7a74855856417501fab1fefa74') % (powerEst, solar, pulsecount) # You'll need to put in your API key here from EmonCMS
     connection = httplib.HTTPConnection("emoncms.org")
     connection.request("GET", path)
     res = connection.getresponse()
     # TODO: deal with a bad response
 
-# def Mock():
-#     global pulsecount
-#     global power
-#     global lastpulsetime
-#
-#     timenow = current_milli_time()
-#     pulsecount += 1
-#     power = power_from_timeinterval_millis(timenow - lastpulsetime)
-#     lastpulsetime = timenow
-
 # Start the scheduler
 sched = BackgroundScheduler()
 sched.add_job(SendPulses, 'interval', seconds=10)
-# sched.add_job(Mock, 'interval', seconds=1)
 sched.start()
 
-# lasttime = time.time()*1000
 for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
     timenow = current_milli_time()
     pulsecount += 1
