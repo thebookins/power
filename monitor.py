@@ -44,6 +44,7 @@ power = 0
 lastpulsetime = 0
 
 current_milli_time = lambda: int(round(time.time() * 1000))
+power_from_timeinterval_millis = lambda t: 3600 * 1000 / t
 
 # This function monitors the output from gpio-irq C app
 # Code from vartec @ http://stackoverflow.com/questions/4760215/running-shell-command-from-python-and-capturing-the-output
@@ -77,7 +78,13 @@ def SendPulses():
     #	print ("Power: %iW") % power # Uncomment for debugging.
     #pulsecount = 0;
 
-    path = ('/input/post?node=emontx&fulljson={"power":%0.1f,"solar":%0.1f,"pulsecount":%d}&apikey=8ba2bf7a74855856417501fab1fefa74') % (power, solar, pulsecount) # You'll need to put in your API key here from EmonCMS
+    # if the timeinterval since last pulse is greater than the previous timeinterval, report the
+    # power using current (provisional) timeinterval
+    # as the current power must be lower than this
+    timenow = current_milli_time()
+    powerEst = min(power, power_from_timeinterval_millis(timenow - lastpulsetime))
+    
+    path = ('/input/post?node=emontx&fulljson={"power":%0.1f,"solar":%0.1f,"pulsecount":%d}&apikey=8ba2bf7a74855856417501fab1fefa74') % (powerEst, solar, pulsecount) # You'll need to put in your API key here from EmonCMS
     connection = httplib.HTTPConnection("emoncms.org")
     connection.request("GET", path)
     res = connection.getresponse()
@@ -90,7 +97,7 @@ def Mock():
 
     timenow = current_milli_time()
     pulsecount += 1
-    power = 3600 * 1000 / (timenow - lastpulsetime)
+    power = power_from_timeinterval_millis(timenow - lastpulsetime)
     lastpulsetime = timenow
 
 # Start the scheduler
@@ -100,7 +107,8 @@ sched.add_job(Mock, 'interval', seconds=1)
 sched.start()
 
 # lasttime = time.time()*1000
-#for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
+for line in runProcess(["/usr/local/bin/gpio-new"]): # GPIO pin 7 on the Pi
+    pass
 #    timenow = current_milli_time()
 #    pulsecount += 1
 #    power = 3600 / (timenow - lastpulsetime)
