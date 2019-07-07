@@ -36,15 +36,23 @@
 #include <limits.h>
 #include <wiringPi.h>
 
-int busy = 0;
+#define	DEBOUNCE_TIME	100
+
+// int busy = 0;
+int debounceTime = 0 ;
 
 void myInterrupt() {
-    if (busy) return;
-    busy = 1;
+    if (millis () < debounceTime)
+    {
+        debounceTime = millis () + DEBOUNCE_TIME ;
+        continue ;
+    }
+    // if (busy) return;
+    // busy = 1;
     printf ("Interrupt\n") ;
     fflush (stdout) ;
-    usleep(360000); // ignore multiple pulses within a 360 ms window (limits power reported to 10 kW)
-    busy = 0;
+    // usleep(360000); // ignore multiple pulses within a 360 ms window (limits power reported to 10 kW)
+    // busy = 0;
 }
 
 /*
